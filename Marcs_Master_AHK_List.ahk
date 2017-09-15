@@ -40,21 +40,21 @@ WinMove, A,, 20, 40, 1277, 820
 Sleep 100
 WinActivate, ahk_class Chrome_WidgetWin_1 ahk_exe vivaldi.exe
 #IfWinActive, ahk_class Chrome_WidgetWin_1 ahk_exe vivaldi.exe
-	Sleep 500
-	WinMaximize, ahk_class Chrome_WidgetWin_1 ahk_exe vivaldi.exe
-	Sleep 500
+Sleep 500
+WinMaximize, ahk_class Chrome_WidgetWin_1 ahk_exe vivaldi.exe
+Sleep 500
 #IfWinActive
 
 ;File Explorer
 WinActivate, File Explorer ahk_class CabinetWClass
 #IfWinActive, File Explorer ahk_class CabinetWClass
-	WinMove, File Explorer ahk_class CabinetWClass,, -1082, -375, 1080, 960
+WinMove, File Explorer ahk_class CabinetWClass,, -1082, -375, 1080, 960
 #IfWinActive 
 
 ;Outlook
 WinActivate, ahk_class rctrl_renwnd32 ahk_exe OUTLOOK.EXE
 #IfWinActive, ahk_class rctrl_renwnd32 ahk_exe OUTLOOK.EXE
-	WinMove, ahk_class rctrl_renwnd32 ahk_exe OUTLOOK.EXE,, -1082, -375, 1080, 960
+WinMove, ahk_class rctrl_renwnd32 ahk_exe OUTLOOK.EXE,, -1082, -375, 1080, 960
 #IfWinActive 
 
 SetTimer, MoveMsgBox, -50
@@ -72,39 +72,53 @@ Return
 SetWinDelay, -1		;Set Delay between window actions to non-existant
 SetTitleMatchMode, 2
 
+Progress, y100, 0, Calibrating Gaming Environment, Moving Steam Client
+
 ;Steam Main Window
 WinActivate, Steam ahk_exe Steam.exe
 #IfWinActive, Steam ahk_exe Steam.exe
-	WinMove, Steam ahk_exe Steam.exe,, -1920, 0, 1038, 872
+WinMove, Steam ahk_exe Steam.exe,, -1920, 0, 1038, 872
 #IfWinActive 
+Progress, 18, Calibrating Gaming Environment, Done - Moving Steam Client
 Sleep 200
 ;Steam Chat Window
+Progress, 36, Calibrating Gaming Environment, Moving Steam Chat
 WinActivate,- Chat ahk_exe Steam.exe
 #IfWinActive,- Chat ahk_exe Steam.exe
-	WinMove,- Chat ahk_exe Steam.exe,, -882, 0, 599, 872
+WinMove,- Chat ahk_exe Steam.exe,, -882, 0, 599, 872
 #IfWinActive
+Progress, 52, Calibrating Gaming Environment, Done - Moving Steam Chat
 Sleep 100 
 ;Steam Friends Window
+Progress, 61, Calibrating Gaming Environment, Moving Steam Friends
 WinActivate, Friends ahk_exe Steam.exe
 #IfWinActive, Friends ahk_exe Steam.exe
-	WinMove, Friends ahk_exe Steam.exe,, -284, 0, 284, 872
+WinMove, Friends ahk_exe Steam.exe,, -284, 0, 284, 872
 #IfWinActive 
+Progress 70, Calibrating Gaming Environment, Done - Moving Steam Friends
 
 ;Discord - Minimize, resize, then maximize
+Progress, 88, Calibrating Gaming Environment, Moving Discord
 WinActivate, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
+Progress, 90, Calibrating Gaming Environment, Moving Discord
 WinRestore, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
+Progress, 92, Calibrating Gaming Environment, Moving Discord
 WinActivate, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
 WinMove, A,, 1997, 14, 973, 868
+Progress, 96, Calibrating Gaming Environment, Moving Discord
 Sleep 100
 WinActivate, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
 #IfWinActive, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
-	Sleep 500
-	WinMaximize, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
-	Sleep 500
+Sleep 500
+WinMaximize, ahk_class Chrome_WidgetWin_1 ahk_exe Discord.exe
+Sleep 500
 #IfWinActive
-
-SetTimer, MoveMsgBox, -20
-MsgBox, 0, Move Windows, ----==== COMPLETE ====----, .9
+Progress, 100, Calibrating Gaming Environment, Done - Moving Discord
+Progress, 100, Calibrating Gaming Environment, Process Complete
+Sleep 800
+Progress, Off
+;SetTimer, MoveMsgBox, -20
+;MsgBox, 0, Move Windows, ----==== COMPLETE ====----, .9
 Return
 
 
@@ -114,51 +128,51 @@ Return
 ;  Change Audio Script with Scroll Lock. 
 ; -----------------------------------------------------------------------------
 ScrollLock::
-   toggle:=!toggle ;toggles up and down states. 
-   Run, mmsys.cpl 
-   WinWait,Sound ; Change "Sound" to the name of the window in your local language 
-   if toggle
-     ControlSend,SysListView321,{Down 1} ; This number selects the matching audio device in the list, change it accordingly 
-   Else
-     ControlSend,SysListView321,{Down 2} ; This number selects the matching audio device in the list, change it accordingly 
-   sleep 40
-   ControlClick,&Set Default,Sound,,,,na ; Change "&Set Default" to the name of the button in your local language 
-   sleep 40
-   ControlClick,OK,Sound,,,,na
+toggle:=!toggle ;toggles up and down states. 
+Run, mmsys.cpl 
+WinWait,Sound ; Change "Sound" to the name of the window in your local language 
+if toggle
+ControlSend,SysListView321,{Down 1} ; This number selects the matching audio device in the list, change it accordingly 
+Else
+ControlSend,SysListView321,{Down 2} ; This number selects the matching audio device in the list, change it accordingly 
+sleep 40
+ControlClick,&Set Default,Sound,,,,na ; Change "&Set Default" to the name of the button in your local language 
+sleep 40
+ControlClick,OK,Sound,,,,na
 return
 +ScrollLock::   ;;;; Shift + ScrollLock - Switch Audio Device to one of the 2 monitors
-   toggle:=!toggle ;toggles up and down states. 
-   Run, mmsys.cpl 
-   WinWait,Sound ; Change "Sound" to the name of the window in your local language 
-   if toggle
-      ControlSend,SysListView321,{Down 3} ; This number selects the matching audio device in the list, change it accordingly 
-   Else
-      ControlSend,SysListView321,{Down 4} ; This number selects the matching audio device in the list, change it accordingly 
-   sleep 40
-   ControlClick,&Set Default,Sound,,,,na ; Change "&Set Default" to the name of the button in your local language 
-   sleep 40
-   ControlClick,OK,Sound,,,,na
+toggle:=!toggle ;toggles up and down states. 
+Run, mmsys.cpl 
+WinWait,Sound ; Change "Sound" to the name of the window in your local language 
+if toggle
+ControlSend,SysListView321,{Down 3} ; This number selects the matching audio device in the list, change it accordingly 
+Else
+ControlSend,SysListView321,{Down 4} ; This number selects the matching audio device in the list, change it accordingly 
+sleep 40
+ControlClick,&Set Default,Sound,,,,na ; Change "&Set Default" to the name of the button in your local language 
+sleep 40
+ControlClick,OK,Sound,,,,na
 return
 
 
 ;Alt + ScrollLock - Switch Audio Device to the Sound System
 ; -----------------------------------------------------------------------------
 !ScrollLock::
-   SetWinDelay, -1		;Set Delay between window actions to non-existant
-   
-   Run, mmsys.cpl 
-   WinWait,Sound 							; Change "Sound" to the name of the window in your local language 
-   ControlSend,SysListView321,{Down 1} 		; This number selects the matching audio device in the list, change it accordingly 
-   ControlClick,&Set Default,Sound,,,,na 	; Change "&Set Default" to the name of the button in your local language 
-   ControlClick,OK,Sound,,,,na
+SetWinDelay, -1		;Set Delay between window actions to non-existant
+
+Run, mmsys.cpl 
+WinWait,Sound 							; Change "Sound" to the name of the window in your local language 
+ControlSend,SysListView321,{Down 1} 		; This number selects the matching audio device in the list, change it accordingly 
+ControlClick,&Set Default,Sound,,,,na 	; Change "&Set Default" to the name of the button in your local language 
+ControlClick,OK,Sound,,,,na
 return
 ;Shift + ScrollLock - Switch Audio Device to the HeadSet
 +^ScrollLock::  
-   Run, mmsys.cpl 
-   WinWait,Sound 							; Change "Sound" to the name of the window in your local language 
-   ControlSend,SysListView321,{Down 3} 		; This number selects the matching audio device in the list, change it accordingly 
-   ControlClick,&Set Default,Sound,,,,na 	; Change "&Set Default" to the name of the button in your local language 
-   ControlClick,OK,Sound,,,,na
+Run, mmsys.cpl 
+WinWait,Sound 							; Change "Sound" to the name of the window in your local language 
+ControlSend,SysListView321,{Down 3} 		; This number selects the matching audio device in the list, change it accordingly 
+ControlClick,&Set Default,Sound,,,,na 	; Change "&Set Default" to the name of the button in your local language 
+ControlClick,OK,Sound,,,,na
 return
 
 
@@ -190,13 +204,13 @@ MsgBox, The active window's class is "%class%".
 
 ; Hotstrings
 ; -----------------------------------------------------------------------------
-:R*:w@mail::Workemail@work.com
-:R*:p@mail::peronsalemail@mine.com
-:R*:gbit@mail::GBiTemail@Gmail.com
+:R*:w@mail::Marc.Stocker@Workday.com
+:R*:p@mail::MarcStocker@Outlook.com
+:R*:gbit@mail::Mstocker.GBiT@Gmail.com
 :R*://shrug::\_(ツ)_/
-:R*://tableflip::(）︵ ┻━┻
-:R*://flippingtable::(ﾉಥ益ಥ）ﾉ ┻━┻
-:R*://placetable::┬─┬ノ( º _ ºノ)
+:R*://tableflip::(）︵ 
+:R*://flippingtable::(ﾉಥ益ಥ）ﾉ 
+:R*://placetable::ノ( º _ ºノ)
 :R*://happy::(ﾟヮﾟ)
 :R*://why::щ(ºДºщ)
 ; Testing
@@ -216,6 +230,51 @@ return
 
 
 
+;=====================================================================================================
+;=====================================================================================================
+;=====================================================================================================
+
+; Gaming
+;=====================================================================================================
+; PUBG - Lower in Game Volume
+
+#IfWinActive, PLAYERUNKNOWN'S BATTLEGROUNDS
+$+WheelLeft::
+$WheelLeft::
+$WheelRight::
+$+WheelRight::
+
+WKeyIsDown := GetKeyState("w" , "p")
+ShiftKeyIsDown := GetKeyState("Shift" , "p")
+
+toggle:=!toggle ;toggles up and down states.
+
+Send {esc}
+
+Sleep 60
+MouseClick, left
+Sleep 80
+MouseClick, left, 1075, 228, 1, 2
+MouseClick, left, 1075, 210, 1, 0
+if toggle
+MouseClick, left, 1062, 351, 1, 1
+Else
+MouseClick, left, 1241,348, 1, 1
+MouseClick, left, 1327, 985, 1, 0
+MouseClick, left, 1327, 955, 1, 0
+
+Send {esc}
+Sleep 30
+Send {Alt Up}
+	Sleep 10
+if (WKeyIsDown)
+{
+	Send {w Down}
+	if(ShiftKeyIsDown)
+		Send {Shift Down}
+}
+return
+#If
 ;=====================================================================================================
 ;=====================================================================================================
 ;=====================================================================================================
@@ -252,20 +311,20 @@ Sleep 500
 loop,
 {
 	Progress, %ProBar%, %Mins%:%Secs%:%MilSec%, Screen Locked
-	if (Probar mod 19230 = 0)
-		Mins := Mins + 1
-	if ( ProBar = 3600 )
-	{
-		Progress, Off
-		return
-	}
+		if (Probar mod 19230 = 0)
+			Mins := Mins + 1
+				if ( ProBar = 3600 )
+				{
+					Progress, Off
+						return
+				}
 	Sleep 15.6
-	ProBar := ProBar + 1
-	if (mod(ProBar, 64) = 0)
-		Secs := Secs + 1
+		ProBar := ProBar + 1
+		if (mod(ProBar, 64) = 0)
+			Secs := Secs + 1
 
-	MilSec := Milsec + 15.6
-	MilSec := Round(Mod(MilSec, 1000))
+				MilSec := Milsec + 15.6
+				MilSec := Round(Mod(MilSec, 1000))
 
 }
 
@@ -300,21 +359,21 @@ loop, % NumMonitors
 
 	SysGet, Mon, Monitor, %a_index%
 
-	WinX := MonRight - MonLeft
-	WinY := MonBottom - MonTop
+		WinX := MonRight - MonLeft
+		WinY := MonBottom - MonTop
 
-	if(a_index != 1)
-	{
-		if (Mod(a_index+1, 2) = 0)
-			Gui, Add, Text,y109 x133*%a_index%, Monitor %a_index%:
+		if(a_index != 1)
+		{
+			if (Mod(a_index+1, 2) = 0)
+				Gui, Add, Text,y109 x133*%a_index%, Monitor %a_index%:
+			else
+				Gui, Add, Text,y+5, Monitor %a_index%:
+		}
 		else
-			Gui, Add, Text,y+5, Monitor %a_index%:
-	}
-	else
-		Gui, Add, Text,y+0, Monitor %a_index%:
-	Gui, Add, Text,y+0 +Border, x:`t%WinX%`ny:`t%WinY%
+			Gui, Add, Text,y+0, Monitor %a_index%:
+				Gui, Add, Text,y+0 +Border, x:`t%WinX%`ny:`t%WinY%
 
-	Gui, Submit
+				Gui, Submit
 
 }
 ;Gui, Add, Button, Default, X
