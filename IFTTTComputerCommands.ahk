@@ -66,6 +66,18 @@
 ;	 Command3:	"Launch Kodi"
 ;	 Response:	"Starting Kodi."
 ;
+;	 Function:	Launch Plex, switch to sound system audio device and change display mode to 'Second Screen only' (the TV).
+;	 Command1:	"Start Plex"
+;	 Command2:	"Launch Plex"
+;	 Command3:	""
+;	 Response:	"Starting Plex."
+;
+;	 Function:	Shudown Kodi, turn off Kodi, switch to Primary Monitor, and turn off the screen, and brownoise?.
+;	 Command1:	"Shutdown Kodi"
+;	 Command3:	"Kill Kodi"
+;	 Command2:	""
+;	 Response:	""
+;
 ;	 Function:	Toggle flux on/off using the alt+End command.
 ;	 Command1:	"Turn off Flux"
 ;	 Command2:	"Disable Flux"
@@ -90,6 +102,12 @@
 ;	 Command3:	"Enable projector"
 ;	 Response:	"Turning on TV"
 ;
+; 	 Function:	Switches to "Duplicate" display mode.
+; 	 Command1:	"Duplicate mode"
+; 	 Command2:	"Duplicate Monitors"
+; 	 Command3:	"Switch to Duplicate mode"
+;
+; 	 Response:	"Duplicating Monitors"
 ;	 Function:	Switches to "Extend" display mode.
 ;	 Command1:	"Extended mode"
 ;	 Command2:	"Extend Monitors"
@@ -112,7 +130,19 @@
 ;	 Command1:	"Enable Sleep Mode"
 ;	 Command2:	"Start Sleep Mode"
 ;	 Command3:	"Bed Time"
-;	 Response:	"Sleep Mode"
+;	 Response:	"Sleep Mode"	
+;
+;	 Function:	Start Zelda
+;	 Command1:	"Start Zelda"
+;	 Command2:	""
+;	 Command3:	""
+;	 Response:	"Starting Zelda"
+;
+;	 Function:	Reboot PC 
+;	 Command1:	"Please reboot My Computer"
+;	 Command2:	"Turn My PC On and Off Again"
+;	 Command3:	""
+;	 Response:	"Restarting Desktop"
 ;
 ;    ========= Commands for testing the script =========
 ;
@@ -152,7 +182,7 @@ FileDelete, %fileToDelete%
 
 FileAppend, `n|----- SCRIPT STARTED ------|---%IFTTTLogTime%---|, %fileToLog%
 
-SetTimer, IFTTTwatchFile, 250
+SetTimer, IFTTTwatchFile, 1000, -9999
 
 ; Add an else if to the list below to create a new command
 ; Just copy the first 3 lines and fill in a unique KEYWORD
@@ -165,7 +195,21 @@ IFTTTwatchFile:
 	FileRead, OutputVar, %fileToWatch%
 	if !FileExist(fileToWatch)
 		return
-	else if OutputVar = "blank"
+	if FileExist(fileToWatch)
+	{
+
+		FileGetTime, fileAgeVar, %fileToWatch%
+		FileAge:=A_Now
+		FileAge -= fileAgeVar, Seconds
+
+		if (FileAge > 5)
+		{
+			FileDelete, %fileToDelete%
+			AddLogEntry("DELETE OLD COMMAND")
+			return
+		}
+	}
+	if OutputVar = "blank"
 		FileDelete, %fileToWatch%
 	; Function:	Puts Computer into sleep mode.
 	; Command1:	"Put my computer to sleep"
@@ -240,6 +284,8 @@ IFTTTwatchFile:
 		; Change Monitors
 		ProjectMonitor("secondscreenonly")
 		
+		; Move Pushbullet if necessary
+		AdjustPushbullet(1912, 122, 0, 63, "Vertical")
 
 		; Focus the Kodi Window
 		WinActivate, Kodi
@@ -253,9 +299,76 @@ IFTTTwatchFile:
 			Sleep 1000
 			if (width != 1920) && (height != 1080)
 				Send {\}
-				;^ Fullscreen kodi (if needed)
+				;     ^ Fullscreen kodi (if needed)
 			Sleep 3000
 		}
+	}
+	; Function:	Launch Plex, switch to sound system audio device and change display mode to 'Second Screen only' (the TV).
+	; Command1:	"Start Plex"
+	; Command2:	"Launch Plex"
+	; Command3:	""
+	; Response:	"Starting Plex."
+	else if (OutputVar = "watchplex")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("Start Plex")
+
+		;Switch Audio Device to Sound System
+		SetDefaultAudioDevice("Onkyo Sound System", "WebCam Mic", "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected Stereo transparent 3d.png")
+
+
+		;Launch Kodi
+		IfWinNotExist, PlexMediaPlayer.exe
+		{
+			run, C:\Program Files\Plex\Plex Media Player\PlexMediaPlayer.exe
+			WinWait, PlexMediaPlayer.exe,, 5
+		}
+
+		; Change Monitors
+		ProjectMonitor("secondscreenonly")
+		
+		; Move Pushbullet if necessary
+		AdjustPushbullet(1999, 122, 0, 63, "Vertical")
+		
+		; Focus the Plex Window
+		WinActivate, ahk_exe PlexMediaPlayer.exe
+		IfWinNotActive, ahk_exe PlexMediaPlayer.exe
+		{
+			WinWait, ahk_exe PlexMediaPlayer.exe,, 5
+		}
+		IfWinActive, ahk_exe PlexMediaPlayer.exe
+		{
+			WinGetPos, x,y, width, height, ahk_exe PlexMediaPlayer.exe
+			Sleep 1000
+			if (width != 1920) && (height != 1080)
+				Send {f11}
+				;     ^ Fullscreen kodi (if needed)
+			Sleep 3000
+		}
+	}
+	; Function:	Shudown Kodi, turn off Kodi, switch to Primary Monitor, and turn off the screen, and brownoise?.
+	; Command1:	"Shutdown Kodi"
+	; Command3:	"Kill Kodi"
+	; Command2:	""
+	; Response:	""
+	else if (OutputVar = "killkodi")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("Start Kodi")
+
+
+
+		ifwinexist, Kodi
+		{
+			WinActivate, Kodi
+			WinWait, Kodi,, .5
+			Send x
+			Sleep 1120
+			WinClose, Kodi
+			Sleep 1200
+		}
+		Sleep 300
+		run nircmd.exe monitor async_off
 	}
 	; Function:	Toggle flux on/off using the alt+End command.
 	; Command1:	"Turn off Flux"
@@ -313,7 +426,7 @@ IFTTTwatchFile:
 	; Function:	Switches to "Second Screen Only" display mode.
 	; Command1:	"Second screen only"
 	; Command2:	"Turn on the TV"
-	; Command3:	"Enable projector"
+	; Command3:	"Second Monitor only"
 	; Response:	"Turning on TV"
 	else if (OutputVar = "secondscreen")
 	{
@@ -333,6 +446,18 @@ IFTTTwatchFile:
 		AddLogEntry("Switch Mon - Extended")
 
 		ProjectMonitor(3)
+	}
+	; Function:	Switches to "Duplicate" display mode.
+	; Command1:	"Duplicate mode"
+	; Command2:	"Duplicate Monitors"
+	; Command3:	"Switch to Duplicate mode"
+	; Response:	"Duplicating Monitors"
+	else if (OutputVar = "duplicatemonitor")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("Switch Mon - Extended")
+
+		ProjectMonitor(2)
 	}
 	; Function:	Pauses Kodi by focussing the Kodi window and sending a Spacebar key stroke (Pause). 
 	; Command1:	"Pause Kodi"
@@ -434,6 +559,58 @@ IFTTTwatchFile:
 
 		WinClose, ahk_exe vlc.exe
 		run nircmd.exe monitor async_off
+	}
+	; Function:	Start Zelda
+	; Command1:	"Start Zelda"
+	; Command2:	""
+	; Command3:	""
+	; Response:	"Starting Zelda"
+	else if (OutputVar = "startzelda")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("Playing Zelda")
+
+		ProjectMonitor("duplicate")
+		Run, C:\Dropbox\AHK Scripts\Gaming Scripts\Zelda Launch Setup - Cemu.exe
+	}
+	; Function:	Computer Sleep Timer
+	; Command1:	"Start Zelda"
+	; Command2:	""
+	; Command3:	""
+	; Response:	"Starting Zelda"
+	
+	; Function:	Reboot PC 
+	; Command1:	"Please reboot My Computer"
+	; Command2:	"Turn My PC On and Off Again"
+	; Command3:	""
+	; Response:	"Restarting Desktop"
+	else if (OutputVar = "RebootPC")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("Reboot Computer")
+
+		Shutdown, 6
+	}
+
+	else if (OutputVar = "sleep")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("RELOAD SCRIPT")
+
+
+
+	}
+	; Function:	
+	; Command1:	
+	; Command2:	
+	; Command3:	
+	; Response:	
+	else if (OutputVar = "foodbot")
+	{
+		FileDelete, %fileToDelete%
+		AddLogEntry("Launch Foodbot.py")
+
+		Run, C:\Dropbox\Software\SlackBots\slackFoodBot.py
 	}
 	; Function:	Reloads this script. (Used for testing.)
 	; Command1:	"Reload"
