@@ -132,7 +132,7 @@ SetCurProgramVolumeTo(curProgram, CurVolume:=10)
     ; Set Volume for Current program via nirCMD
     ;=====================================================
     if (curProgram != "Discord.exe")
-	    run nircmd.exe setappvolume %curProgram% %CurVolume%
+	    run nircmd.exe setappvolume focused %CurVolume%
     ;=====================================================
     ; Set Volume for All Discord Processes (Otherwise Voice Lobbies and Videos are not affected)
     ;=====================================================
