@@ -1,4 +1,4 @@
-﻿;==============================================================================================================
+;==============================================================================================================
 ;==============================================================================================================
 ;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Must have nirCMD installed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ; Download Link: https://www.nirsoft.net/utils/nircmd-x64.zip
@@ -15,7 +15,7 @@
 ;=================================================================================
 ; Adjust Custom Volume Level using Ctrl+MouseWheel Up/Down
 ;====================================================
-;Volume Up --- Ctrl+Win+Alt+MouseWheelUp
+;;Volume Up --- Ctrl+Win+Alt+MouseWheelUp
 ;#!^WheelUp::          
 ;	ChangeCurProgramVolume("Up")
 ;return 
@@ -41,7 +41,7 @@
 ;========================================
 ChangeCurProgramVolume(UpOrDown:="Up")
 {
-	WinGet, curProgram, ProcessName, A
+    WinGet, curProgram, ProcessName, a
     ; IniRead, OutputVar, Filename, Section, Key [, Default] 
 	IniRead, CurVolume, %tempFolder%\Application Custom Audio Levels\CustomAudioPerProgram.ini, %curProgram%, Current Volume, NoCustomVol
     ;==============================================================================================================================================
@@ -56,11 +56,18 @@ ChangeCurProgramVolume(UpOrDown:="Up")
         UpOrDown:=-1
 	If (CurVolume <= .099)
 		CurVolume := CurVolume + (.01 * UpOrDown)
+    else if (CurVolume = .10)
+    {
+        if (UpOrDown == -1)
+		    CurVolume := CurVolume + (.01 * UpOrDown)   
+        else 
+		    CurVolume := CurVolume + (.05 * UpOrDown)   
+    }
 	else
 		CurVolume := CurVolume + (.05 * UpOrDown)
 	if CurVolume >= 1.00
 		CurVolume := 1.00
-	else if (CurVolume <= 0)
+	else if (CurVolume <= 0.00)
 		CurVolume = 0.00
     ;==============================================================================================================================================
 	IniWrite, %CurVolume%, %tempFolder%\Application Custom Audio Levels\CustomAudioPerProgram.ini, %curProgram%, Last Custom Volume
@@ -72,7 +79,7 @@ ChangeCurProgramVolume(UpOrDown:="Up")
 ;========================================
 SetCurProgramLastCustomVolume()
 { 
-	WinGet, curProgram, ProcessName, A
+    WinGet, curProgram, ProcessName, a
     ;==============================================================================================================================================
 	IniRead, LastCustProgramVol, %tempFolder%\Application Custom Audio Levels\CustomAudioPerProgram.ini, %curProgram%, Last Custom Volume, NoCustomVol
     If (LastCustProgramVol == "NoCustomVol")
@@ -86,7 +93,7 @@ SetCurProgramLastCustomVolume()
 ;========================================
 SetCurProgramMaxVolume()
 {
-	WinGet, curProgram, ProcessName, A
+    WinGet, curProgram, ProcessName, a
     SetCurProgramVolumeTo(curProgram, 1.00)
 }
 ;========================================
@@ -94,7 +101,7 @@ SetCurProgramMaxVolume()
 ;========================================
 SetCurProgramVolumeMute()
 {
-	WinGet, curProgram, ProcessName, A
+    WinGet, curProgram, ProcessName, a
     SetCurProgramVolumeTo(curProgram, 0.00)
 }
 ;========================================
@@ -102,7 +109,7 @@ SetCurProgramVolumeMute()
 ;========================================
 SaveCurProgramCustomVolumeLevel()
 {
-	WinGet, curProgram, ProcessName, A
+    WinGet, curProgram, ProcessName, a
     If (LastCustProgramVol == "NoCustomVol")
         Progress, by75 zy00 zx5 wm700 ws800 fm8 cw212121 ctDAE6EA, Please Set a Volume before Saving, FAILURE
     Else
@@ -120,11 +127,25 @@ SaveCurProgramCustomVolumeLevel()
 ;========================================
 SetCurProgramVolumeTo(curProgram, CurVolume:=10)
 {
-    global
+    CheckForNirCMD()
     ;=====================================================
     ; Set Volume for Current program via nirCMD
     ;=====================================================
-	run nircmd.exe setappvolume focused %CurVolume%
+    if (curProgram != "Discord.exe")
+	    run nircmd.exe setappvolume %curProgram% %CurVolume%
+    ;=====================================================
+    ; Set Volume for All Discord Processes (Otherwise Voice Lobbies and Videos are not affected)
+    ;=====================================================
+    else
+    {
+        WinGet, DiscordPID, PID, ahk_exe Discord.exe
+        ;Msgbox, "Discord, start loop"
+        for process in ComObjGet("winmgmts:").ExecQuery("" . "Select * from Win32_Process where ParentProcessId=" . DiscordPID) 
+        {
+            processID := process.ProcessID
+	        run nircmd.exe setappvolume /%processID% %CurVolume%
+        }
+    }
     ;=====================================================
     ; Save Current Volume for Program
     ;=====================================================
@@ -161,7 +182,9 @@ SetCurProgramVolumeTo(curProgram, CurVolume:=10)
     ProgressBarAlreadyActive := "Active"
     ;====================================================================================================================================
 	SetTimer, ChangeAudioLevelTimer, -1200
+    
 }
+
 
 ChangeAudioLevelTimer:
 {
@@ -192,4 +215,36 @@ getProgramVolume()
 
     msgbox, %ErrorLevel%
 
+}
+
+CheckForNirCMD()
+{
+    
+	; Check to see if NirCMD is installed
+	IfNotExist, C:\Windows\nircmd.exe
+	{
+		msgbox, 51, NirCMD is not Installed!!!, NirCMD is not currently installed. Without it we cannot change the volume.`nIf you're unable to install NirCMD because you are not an Admin refer to the script for how to implement the non-NirCMD method.`n`nPress YES to download NirCMD to your DOWNLOADS folder.`nPress CANCEL to exit.
+
+		IfMsgBox Yes
+		{
+			Msgbox, 1,, The file 'NirCMD.zip' will download to your 'DOWNLOADS' folder`nUnzip the file and run 'NirCMD.exe' AS ADMIN (Very Important).`n`nDO NOT FORGET TO RUN IT AS ADMIN. It will not work otherwise.
+			IfMsgBox Cancel
+				return
+			ToolTip, Downloading NirCMD to: C:\Users\%A_USERNAME%\Downloads\`n`nDon't forget to run "NirCMD.exe" as ADMIN
+
+			UrlDownloadToFile, https://www.nirsoft.net/utils/nircmd-x64.zip, C:\Users\%A_USERNAME%\Downloads\NirCMD.zip
+			Sleep 1250
+			Run, C:\Users\%A_USERNAME%\Downloads\
+			Sleep 3000
+			ToolTip
+			Return
+		}
+		IfMsgBox No
+		{
+			Run, mmsys.cpl
+			return
+		}
+		IfMsgbox Cancel
+			return
+	}
 }
