@@ -8,6 +8,9 @@ The exception to this rule are scripts made for games, which are set to automati
 ### Scripts
 - Master Script
   - This is the master script for my primary Desktop, though could be used on other systems. This script include a multitude of different macros, functions, timers, and other scripts. When the Master Script starts, it displays a small logo splash screen in the top center of the monitor. 
+
+      ![image](https://user-images.githubusercontent.com/16886667/122695061-3832a280-d1f4-11eb-8013-173fc432ba73.png)  
+
 - IFTTTComputerCommands
   - Watches for a file, reads the contents (single word, no white spaces) and executes an action/macro. 
   - Adds a log entry every time a command is executed. 
@@ -39,13 +42,13 @@ The exception to this rule are scripts made for games, which are set to automati
   - Uses NirCMD to avoid popup windows (which take focus from other applications)
   - Transparent Splashimages centered on every monitor to display which device is now active
 
-   ![image](https://user-images.githubusercontent.com/16886667/122694945-dd00b000-d1f3-11eb-8922-4db066a887c8.png)
+     ![image](https://user-images.githubusercontent.com/16886667/122694945-dd00b000-d1f3-11eb-8922-4db066a887c8.png)
 
 
 - Custom Program Volume - ChangeCurProgramVolume(UpOrDown:="Up")
   - Includes functions to Raise/Lower volume, Mute Volume, Max Volume and Last known volume.
   - Each function is applied to the currently active window. 
-  - Displays Progress Bar to show program name, and current volume.
+  - Displays Progress Bar to show program name, and current volume (Unfortunately does not work on Discord Voice Lobby volume. If you check the Volume Mixer, you'll notice 2 instances for Discord. The Voice Lobby one, is not the one connected directly to the application window)
    
      ![image](https://user-images.githubusercontent.com/16886667/122694468-497aaf80-d1f2-11eb-942f-1e3f50941cf1.png)
 - Project Monitor - ProjectMonitor(Screen)
