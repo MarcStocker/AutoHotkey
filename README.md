@@ -39,7 +39,7 @@ The exception to this rule are scripts made for games, which are set to automati
 ### Functions
 - Change Audio Devices - SetDefaultAudioDevice(AudDev, MicDev, audiosplashfile)
   - Assigns new Default Audio and Recording devices with a single key press. 
-  - Uses NirCMD to avoid popup windows (which take focus from other applications)
+  - Uses [NirCMD](https://www.nirsoft.net/utils/nircmd.html) to avoid popup windows (which take focus from other applications)
   - Transparent Splashimages centered on every monitor to display which device is now active
 
      ![image](https://user-images.githubusercontent.com/16886667/122694945-dd00b000-d1f3-11eb-8922-4db066a887c8.png)
@@ -63,3 +63,10 @@ The exception to this rule are scripts made for games, which are set to automati
   - Sometimes doesn't work well with programs that have multiple windows, and or programs who's "Window Title" changes as you move from page to page. 
 - Pushbullet Move - AdjustPushbullet() | HideAdjustPushBullet()
   - Was used to show/hide pushbullet Bubbles. Haven't used or touched since 2018
+
+- Change Monitor Input Select - setMonitorInputSource("MonitorName", "InputType") | getMonitorInputSource("MonitorName)
+  - Change the 'Input Select' of a specific monitor
+    - Switch between HDMI, DP, and mDP inputs
+  - Can detect which input is active so you can choose which input to use programically
+  - Use [ControlMyMonitor.exe](https://www.nirsoft.net/utils/control_my_monitor.html) by NirSoft to see if you Monitor Supports VPC Code '60' Input Select
+  - Based code taken from fiveolddogs in the [AHK forums](https://www.autohotkey.com/boards/viewtopic.php?t=66292)
