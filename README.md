@@ -68,5 +68,5 @@ The exception to this rule are scripts made for games, which are set to automati
   - Change the 'Input Select' of a specific monitor
     - Switch between HDMI, DP, and mDP inputs
   - Can detect which input is active so you can choose which input to use programically
-  - Use [ControlMyMonitor.exe](https://www.nirsoft.net/utils/control_my_monitor.html) by NirSoft to see if you Monitor Supports VPC Code '60' Input Select
+  - Use [ControlMyMonitor.exe](https://www.nirsoft.net/utils/control_my_monitor.html) by NirSoft to see if your Monitor Supports VPC Code '60' 'Input Select'
   - Based code taken from fiveolddogs in the [AHK forums](https://www.autohotkey.com/boards/viewtopic.php?t=66292)
