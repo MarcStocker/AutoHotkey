@@ -1,5 +1,5 @@
-;=====================================================================================
-;=====================================================================================
+;==========================================================================================
+;==========================================================================================
 ;=======	 __  __                   _       __  __              _              	=======
 ;=======	|  \/  |                 ( )     |  \/  |            | |             	=======
 ;=======	| \  / |  __ _  _ __  ___|/ ___  | \  / |  __ _  ___ | |_  ___  _ __ 	=======
@@ -12,8 +12,8 @@
 ;=======	          / /\ \  |  __  ||  <   | |     | |/ __|| __|               	=======
 ;=======	         / ____ \ | |  | || . \  | |____ | |\__ \| |_                	=======
 ;=======	        /_/    \_\|_|  |_||_|\_\ |______||_||___/ \__|               	=======
-;=====================================================================================
-;=====================================================================================
+;==========================================================================================
+;==========================================================================================
 ;==	Quick Cheat Sheet 																=======
 ;==	-----------------------------------------------------------------------------	=======
 ;==	Hotkeys: ^ = Control; ! = Alt; + = Shift; # = Windows key; * = Wildcard;		=======
@@ -28,22 +28,56 @@
 
 ;------------------------------------------------------------------------------------------
 ; Starting Script SplashImage (Displays AHK 3 key logo with "Starting Master Script" on the keys)
-; This assumes all monitors are 1920x1080
+; This is dynamic and will spawn 
 ;------------------------------------------------------------------------------------------
-SplashImage, 8:C:\Dropbox\AHK Scripts\SplashImages\ahk keyboard logo.png, b Hide y0
-SplashImage, 9:C:\Dropbox\AHK Scripts\SplashImages\ahk keyboard logo.png, b Hide y0 x2758
-SplashImage, 10:C:\Dropbox\AHK Scripts\SplashImages\ahk keyboard logo.png, b Hide y0 x-1082
-SplashImage, 8:Show
-WinSet, TransColor, FFFFFF 150, %A_ScriptName%
-SplashImage, 9:Show
-WinSet, TransColor, FFFFFF 150, %A_ScriptName%
-SplashImage, 10:Show
-WinSet, TransColor, FFFFFF 150, %A_ScriptName%
-WinSet, AlwaysOnTop, On, %A_ScriptName%
-WinSet, ExStyle, +0x20, %A_ScriptName%
+defaultImageWidth:=234
+; Spawn a Splashscreen of every single monitor
+SysGet, NumMonitors, MonitorCount
+loop % NumMonitors
+{
+	SysGet, Mon%A_Index%, Monitor, %A_Index%
+	if (Mon%A_Index%Left = )
+		Continue
+	MonRight:= Mon%A_Index%Right
+	MonLeft	:= Mon%A_Index%Left
+	MonTop	:= Mon%A_Index%Top
+	MonBot	:= Mon%A_Index%Bottom
+
+	; Find the "Offset Center" of Monitor X, where we'll place the Splash Image
+	; Images are placed based off the top left corner, so we need to account for that
+	xOffset:=(MonLeft+((MonRight-MonLeft)/2))-(defaultImageWidth/2)
+	yOffset:=(MonTop+1)
+
+	; Create X and Y Offsets to shift the image around the screen/monitors
+	; If only 1 axis is provided, the Image will center on the opposite axis
+	; If 0 axis are provided, the Image is centered on the Primary Monitor
+	if xOffset != Null
+	{
+		if (xOffset >= 0)
+			splashOptions = %splashOptions% x+%xOffset%
+		if (xOffset < 0)
+			splashOptions = %splashOptions% x%xOffset%
+	}
+	if yOffset != Null
+	{
+		if (yOffset > 0)
+			splashOptions = %splashOptions% y+%yOffset%
+		if (yOffset < 0)
+			splashOptions = %splashOptions% y%yOffset%
+	}
+
+	my_Index := A_Index + 7
+	; Build GUI to Display Current Audio Device (But Start Hidden to help prevent flashing black background)
+	SplashImage, %my_Index%:C:\Dropbox\AHK Scripts\SplashImages\ahk keyboard logo trans.png, b %splashOptions% Hide, , , ,		
+	SplashImage, %my_Index%:show				; Show Splashscreen Image (This helps to prevent the flash)
+	WinSet, TransColor, 000000 150, %A_ScriptName%	; Set Background transparent and entire Image 58% transparent
+	WinSet, AlwaysOnTop, On, %A_ScriptName%			; Set Image Always On Top 
+	WinSet, ExStyle, +0x20, %A_ScriptName%			; Enable "Clickthrough" on Image so it does not interfer with user
+
+}
+
 SetTimer, ScriptStartingGui, -800
 SetTimer, DesktopIsOnline, 30000, -9999
-
 
 ;------------------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------------------
@@ -102,6 +136,9 @@ Send {Esc Up}
 ; Timers. "Always Running" Scripts. (Must come before any script with a "return" in it)
 ;===================================================================================================
 	#include C:\Dropbox\AHK Scripts\IFTTTComputerCommands.ahk
+	#include C:\Dropbox\AHK Scripts\~~Master Scripts Collection\CloseTeamViewerTinyWindow.ahk
+;===================================================================================================
+	return 
 ;===================================================================================================
 ; Window Setup and Moving Hotkeys
 ;===================================================================================================
@@ -128,6 +165,9 @@ Send {Esc Up}
 	#include C:\Dropbox\AHK Scripts\Functions\Save all Open Window Locations.ahk
 	#include C:\Dropbox\AHK Scripts\Functions\LeClick.ahk
 	#include C:\Dropbox\AHK Scripts\Functions\ProgressBarTheme.ahk
+	#include C:\Dropbox\AHK Scripts\Functions\FindAllProcessIDs.ahk
+	#include C:\Dropbox\AHK Scripts\Functions\MonitorInputSelect.ahk
+	#include C:\Dropbox\AHK Scripts\~~Master Scripts Collection\Edit Window Transparency.ahk
 ;=================================================================================================== - End Include Scripts Section
 
 ;===============================================================================
@@ -167,7 +207,7 @@ Send {LWin Up}
 ;== |_|  |_| \____/   |_|   |_|\_\|______|   |_|  |_____/  == |_|  |_| \____/   |_|   |_|\_\|______|   |_|  |_____/  ==
 ;======================================================================================================================
 ;======================================================================================================================
-                                                       
+                                       
                                                        
 
 ;===============================================================================
@@ -211,19 +251,21 @@ return
 ; Remapped - Switch Between Virtual Desktops
 ;=================================================================================
 
-^#j::   ; Switch to the Right
-	loop 5
-		Send #^{Left}
-return
 ^#l::   ; Switch to the Right
+!#^XButton2::
 	Send #^{Right}
 return
 ^#k::   ; Switch to the Left
+!#^XButton1::
 	Send #^{Left}
 return
 ^#;::   ; Switch to the Right
 	loop 5
 		Send #^{Right}
+return
+^#j::   ; Switch to the Left
+	loop 5
+		Send #^{Left}
 return
 
 ;=================================================================================
@@ -264,7 +306,7 @@ ScrollLock:: ;ScrollLock default hotkey
 	{
 		ToolTip, Opening Sound Menu
 		Run, mmsys.cpl
-		Sleep 750
+		KeyWait, ScrollLock
 		ToolTip
 		Return
 	}
@@ -339,14 +381,14 @@ Return
 	;---------------------------------------------------------------------------------------------------------------
 	; --- Primary Audio Device, this device will always be selected first when the script starts/re-starts ---
 	shiftDevArray := [{	 Speaker 	 : "Asus Monitor"
-					,Microphone  : "WebCam Mic"
-					,SplashImage : "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected Asus Monitor.png" }]
+						,Microphone  : "WebCam Mic"
+						,SplashImage : "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected Asus Monitor.png" }]
 	;---------------------------------------------------------------------------------------------------------------
 	;------------------------------------ Add additional devices below, as such... --------------------------------- 
 	;---------------------------------------------------------------------------------------------------------------
 	shiftDevArray.push({	Speaker 	 : "G933 Headset"
-					,Microphone  : "G933 Mic"
-					,SplashImage : "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected G933.png" })
+							,Microphone  : "G933 Mic"
+							,SplashImage : "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected G933.png" })
 	;---------------------------------------------------------------------------------------------------------------
 	shiftDevArray.push({	Speaker 	 : "G930 Headset"
 					,Microphone  : "G930 Mic"
@@ -354,6 +396,45 @@ Return
 	;---------------------------------------------------------------------------------------------------------------
 	;---------------------------------------------------------------------------------------------------------------
 	aDevice 	:= shiftDevArray[shiftaudiotoggle]
+	theSpeaker  := aDevice["Speaker"]
+	theMic 		:= aDevice["Microphone"]
+	theImage	:= aDevice["SplashImage"]
+	;---------------------------------------------------------------------------------------------------------------
+	;---------------------------------------------------------------------------------------------------------------
+	SetDefaultAudioDevice(theSpeaker, theMic, theImage)	;Set Audio and Mic Devices (And spawn a SplashImage)
+	
+return
+;---------------------------------------------------------------------------------
+;=================================================================================
+; Change Directly to the Voice Meter Banana
+;=================================================================================
+!ScrollLock::   ;;;; Ctrl + ScrollLock - Switch Audio Device to Voice Meter Banana
+
+	;theSpeaker=Asus Monitor
+	;theMic=WebCam Mic
+	;theImage=C:\Dropbox\AHK Scripts\SplashImages\Audio Selected Asus Monitor.png
+
+	;---------------------------------------------------------------------------------------------------------------
+	ctrlaudionum:=mod(ctrlaudionum++, ctrlDevArray.len)
+	;---------------------------------------------------------------------------------------------------------------
+	If (ctrlaudiotoggle == null)
+		ctrlaudiotoggle:=0
+	ctrlaudiotoggle:=mod(ctrlaudiotoggle, ctrlDevArray.Length())
+	ctrlaudiotoggle++
+	;---------------------------------------------------------------------------------------------------------------
+	; --- Primary Audio Device, this device will always be selected first when the script starts/re-starts ---
+	ctrlDevArray := [{	 Speaker 	 : "VoiceMeeter Input"
+						,Microphone  : "VoiceMeeter Output"
+						,SplashImage : "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected VoiceMeeter Output.png" }]
+	;---------------------------------------------------------------------------------------------------------------
+	;------------------------------------ Add additional devices below, as such... --------------------------------- 
+	;---------------------------------------------------------------------------------------------------------------
+	;ctrlDevArray.push({	Speaker 	 : "G933 Headset"
+	;					,Microphone  : "G933 Mic"
+	;					,SplashImage : "C:\Dropbox\AHK Scripts\SplashImages\Audio Selected G933.png" })
+	;---------------------------------------------------------------------------------------------------------------
+	;---------------------------------------------------------------------------------------------------------------
+	aDevice 	:= ctrlDevArray[ctrlaudiotoggle]
 	theSpeaker  := aDevice["Speaker"]
 	theMic 		:= aDevice["Microphone"]
 	theImage	:= aDevice["SplashImage"]
@@ -431,6 +512,32 @@ Return
 ;		SetCurProgramVolumeMute()
 Return
 
+!#^x::
+	count := 0
+	Gui, Add, ListView, x2 y0 w400 h500, Process Name|Command Line|ProcessId
+	for process in ComObjGet("winmgmts:").ExecQuery("Select * from Win32_Process") {
+		if (process.Name == "Discord.exe")
+		{
+			proName := process.Name
+			;Process, Close, %proName%
+			if errorlevel == 0
+			{
+				ToolTip
+				ToolTip, error
+				Sleep 20
+			}
+			else
+				;ToolTip, %count%: %proName% - %process%
+			count++
+			Sleep 12
+		}
+	    LV_Add("", process.Name, process.CommandLine, process.ProcessID)
+	}
+	Gui, Add, Text,, %count% Discord processes found.
+	Gui, Show,, Process List
+	ToolTip
+Return
+
 ;CustProgramVolumes:= Array
 ;
 ;
@@ -461,7 +568,7 @@ Return
 	TrayTip, AHK - F.lux (Dimming), %ThisText%,, 1
 	HideTrayTip()
 	Send {Alt Down}
-	loop, 20
+	loop, 5
 	{
 		SendInput {PgDn}
 		Sleep 50
@@ -475,7 +582,7 @@ return
 	TrayTip, AHK - F.lux (Brighting), %ThisText%,, 1
 	HideTrayTip()
 	Send {Alt Down}
-	Loop, 20 
+	Loop, 15
 	{
 		SendInput {PgUp}
 		Sleep 150
@@ -492,6 +599,52 @@ HideTrayTip() {
     }
 }
 ;---------------------------------------------------------------------------------
+
+;=================================================================================
+; Change Monitor Input Select . 
+; 	Change the Input Select on a supported monitor. HDMI, DP, mDP. 
+;	Mostly used for switching between Work and Personal Computers
+;=================================================================================
+; Switching sources~
+; For reference
+auto := 0
+dp   := 15
+mdp  := 16
+hdmi := 17
+
+leftMon  := 775292539
+centMon  := 52366489
+rightMon := 257165421
+!$#^1:: ; All Monitors toggle inputs
+if(getMonitorInputSource("leftMon") == "hdmi"){
+  setMonitorInputSource("leftMon", "dp")
+}
+else {
+  setMonitorInputSource("leftMon", "hdmi")
+}
+if(getMonitorInputSource("rightMon") == "dp"){
+  setMonitorInputSource("rightMon", "hdmi")
+}
+else {
+  setMonitorInputSource("rightMon", "dp")
+}
+return
+!$#^2:: ; Far Left Monitor
+if(getMonitorInputSource("leftMon") == "hdmi"){
+  setMonitorInputSource("leftMon", "dp")
+}
+else {
+  setMonitorInputSource("leftMon", "hdmi")
+}
+return
+!$#^3:: ; Far Right Monitor
+if(getMonitorInputSource("rightMon") == "dp"){
+  setMonitorInputSource("rightMon", "hdmi")
+}
+else {
+  setMonitorInputSource("rightMon", "dp")
+}
+return
 
 ;=================================================================================
 ; Toggle Between rainmeter Layouts
@@ -632,7 +785,7 @@ return
 ; Move Pushbullet
 ;=====================================================================================================
 
-AdjustPushbullet(xRow, yColumn, xAdd, yAdd, HorVert:="Vertical", ReverseDirection:="TRUE", NewRowColAfterNumBubbles:=0, DistBetweenNewRowCol:=70)
+;AdjustPushbullet(xRow, yColumn, xAdd, yAdd, HorVert:="Vertical", ReverseDirection:="TRUE", NewRowColAfterNumBubbles:=0, DistBetweenNewRowCol:=70)
 
 !#^Right::
 	AdjustPushbullet(0, 0, 70, 0, "h", "FALSE", "FALSE", 6, 75)
@@ -724,7 +877,7 @@ return
 ;			WinMove, A,, 0, 0, 1920, 1080
 ;	return
 ;
-;	WheelLeft::	;ScrollWheelRight
+;	WheelLeft::	;ScrollWheelRight+-
 ;		rllmtoggle:=!rllmtoggle 
 ;		if rllmtoggle
 ;		{
@@ -930,8 +1083,13 @@ DesktopIsOnline:
 ScriptStartingGui:
 {
 	Sleep 1500
-	SplashImage, 8:Off
-	SplashImage, 9:Off
-	SplashImage, 10:Off
+	SysGet, NumMonitors, MonitorCount
+	loop % NumMonitors
+	{
+		my_Index := A_Index + 7
+		SplashImage, %my_Index%:Off
+	}
 }
 
+SetTimer, CheckForTeamViewerWindow, 5000, -9999
+SetTimer, IFTTTwatchFile, 1000, -9999 
